@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Help\UploadImage;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TokenResource;
 use Illuminate\Http\JsonResponse;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use  App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\UserResource;
 class UserController extends Controller
@@ -65,7 +67,7 @@ class UserController extends Controller
                 'password' => 'required|string',
                 'phone_number' => 'required|string',
                 'address' => 'required|string',
-                'image' => 'required|string',
+                'image' => 'required',
                 'slug_skills' => 'required|string'
             ]
         );
@@ -81,12 +83,14 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
             $user->phone_number = $request->phone_number;
             $user->address = $request->address;
-            $user->image = $request->image;
+            // url('/') . '/storage/'. $image->fileName;
+            $upload = new UploadImage($request,"user");
+            $user->image = $upload->fileName;
             $user->slug_skills = $request->slug_skills;
             $user->save();
             return new TokenResource([
                 "status" => 200,
-                "api_token" => $request->user()->api_token
+                "api_token" => $user->api_token
             ] );
 
         }
@@ -101,14 +105,11 @@ class UserController extends Controller
 
     /**
      * @param Request $request
-     * @return TokenResource
+     * @return UserResource
      */
     public function findProfile(Request $request )
     {
-        return new TokenResource([
-            "status" => 200,
-            "api_token" => $request->user()->api_token
-        ] );
+        return new UserResource($request->user() );
     }
 
     public function editUser( Request $request )

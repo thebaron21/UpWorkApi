@@ -20,7 +20,7 @@ class UserResource extends JsonResource
               "email" => $this->email,
               "phone_number" => $this->phone_number,
               "address" => $this->address,
-              "image" => $this->image,
+              "image" => url('/') . '/storage/'. $this->image,
               "slug_skills" =>  $this->slug_skills,
               "created_at" => $this->create_at,
               "updated_at" => $this->updated_at
