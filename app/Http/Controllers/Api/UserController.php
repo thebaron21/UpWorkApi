@@ -92,12 +92,11 @@ class UserController extends Controller
 
     /**
      * @param Request $request
-     * @return string
+     * @return UserResource
      */
-    public function findProfile( Request $request )
+    public function findProfile(Request $request )
     {
-        return "lkjdf";
-//        return new UserResource( $request->user() );
+        return new UserResource( $request->user() );
     }
 
     public function editUser( Request $request )
