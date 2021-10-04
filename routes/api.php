@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post( '/login', [UserController::class , 'login'] );
 Route::post( '/register' ,[UserController::class , 'register'] );
-
-
-Route::get( 'get-profile' , [UserController::class, 'findProfile'] )->middleware('auth:api');
+Route::get( '/get-profile' , [UserController::class, 'findProfile'] )->middleware('auth:api');
+Route::get('/get-user/{id}',[UserController::class,'findUser']);
 

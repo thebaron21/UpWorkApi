@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TokenResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use  App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +15,7 @@ class UserController extends Controller
 {
     /**
      * @param Request $request
-     * @return UserResource|array
+     * @return TokenResource|array|JsonResponse
      */
     public function login(Request $request )
     {
@@ -34,13 +36,16 @@ class UserController extends Controller
             if( Auth::attempt($credentials) ){
                 $password = Hash::make( $request->password );
                 $user = User::where( "email" , $request->email )->first();
-                return UserResource::make( ["api_token" => $user->api_token ] );
+                return new TokenResource([
+                    "status" => 200,
+                    "api_token" => $request->user()->api_token
+                ] );
             }else{
-                return UserResource::make(
+                return new JsonResponse(
                     [
                         "status" => 404,
                         "error" => "User Not Found"
-                    ]
+                    ],202
                 );
             }
         }
@@ -48,7 +53,7 @@ class UserController extends Controller
 
     /**
      * @param Request $request
-     * @return UserResource|array
+     * @return TokenResource|array
      */
     public function register(Request $request )
     {
@@ -79,24 +84,31 @@ class UserController extends Controller
             $user->image = $request->image;
             $user->slug_skills = $request->slug_skills;
             $user->save();
-            return UserResource::make( $user );
+            return new TokenResource([
+                "status" => 200,
+                "api_token" => $request->user()->api_token
+            ] );
 
         }
     }
 
     public function findUser( $id )
     {
-
+        $user = User::find($id);
+        return new UserResource($user);
     }
 
 
     /**
      * @param Request $request
-     * @return UserResource
+     * @return TokenResource
      */
     public function findProfile(Request $request )
     {
-        return new UserResource( $request->user() );
+        return new TokenResource([
+            "status" => 200,
+            "api_token" => $request->user()->api_token
+        ] );
     }
 
     public function editUser( Request $request )
