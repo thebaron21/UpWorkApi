@@ -21,6 +21,9 @@ Route::post( '/login', [UserController::class , 'login'] );
 Route::post( '/register' ,[UserController::class , 'register'] );
 Route::get( '/get-profile' , [UserController::class, 'findProfile'] )->middleware('auth:api');
 Route::get('/get-user/{id}',[UserController::class,'findUser']);
+Route::post('/edit-user',[UserController::class,'editUser'])->middleware('auth:api');
+Route::post('/reset-pass',[UserController::class,'resetPassword'])->middleware('auth:api');
 
-Route::post('/upload-image',[CompanyController::class,'index']);
+Route::get('/get-companies',[CompanyController::class,'show']);
+Route::get('/get-company/{id}',[CompanyController::class,'index']);
 

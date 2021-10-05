@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use  App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\UserResource;
 class UserController extends Controller
@@ -36,19 +35,27 @@ class UserController extends Controller
         }else{
             $credentials = $request->only( 'email' , 'password' );
             if( Auth::attempt($credentials) ){
-                $password = Hash::make( $request->password );
                 $user = User::where( "email" , $request->email )->first();
                 return new TokenResource([
                     "status" => 200,
-                    "api_token" => $request->user()->api_token
+                    "api_token" => $user->api_token
                 ] );
             }else{
-                return new JsonResponse(
-                    [
-                        "status" => 404,
-                        "error" => "User Not Found"
-                    ],202
-                );
+                if( User::where( "email" , $request->email )->get()->count() == 0 ) {
+                    return new JsonResponse(
+                        [
+                            "status" => 404,
+                            "error" => "User Not Found"
+                        ], 202
+                    );
+                }else{
+                    return new JsonResponse(
+                        [
+                            "status" => 404,
+                            "error" => "Password Wrong"
+                        ], 202
+                    );
+                }
             }
         }
     }
@@ -114,6 +121,44 @@ class UserController extends Controller
 
     public function editUser( Request $request )
     {
+        $id = $request->user()->id;
+        $user = User::find($id);
+        if( $request->has('name') ){
+            $user->name = $request->get('name');
+        }
+        if( $request->has('phone_number') ){
+            $user->phone_number = $request->get('phone_number');
+        }
+        if( $request->has('address') ){
+            $user->address = $request->get('address');
+        }
+        if( $request->has('slug_skills') ){
+            $user->slug_skills = $request->get('slug_skills');
+        }
+        if( $request->hasFile('image') ){
+            $file = new UploadImage($request,"user");
+            $user->image = $file->fileName;
+        }
+        $user->save();
+        return UserResource::make($user);
+    }
 
+    public  function resetPassword( Request $request ){
+        $validate = Validator::make(
+            $request->all(),
+            [
+                "password" => "required|string",
+                "new_password" => "required|string"
+            ]
+        );
+        if( $validate->fails() ){
+            return new JsonResponse($validate->errors()->all(),202);
+        }else{
+            $id = $request->user()->id;
+            $user = User::find($id);
+            $user->password = Hash::make($request->get('new_password'));
+            $user->save();
+            return UserResource::make ($user,200);
+        }
     }
 }

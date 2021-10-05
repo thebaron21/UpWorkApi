@@ -2,14 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Help\UploadImage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use App\Models\Company;
 class CompanyController extends Controller
 {
-    public function index(Request  $request)
+    public function show()
     {
-//        $image = new UploadImage($request,"user");
-//        return
+        $companies = Company::all();
+        return new JsonResponse(
+            $companies,
+            200
+        );
+    }
+    public function index($id){
+        $company = Company::find($id);
+        return new JsonResponse(
+            $company,
+            200
+        );
     }
 }
