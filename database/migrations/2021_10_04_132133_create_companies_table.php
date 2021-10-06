@@ -18,11 +18,12 @@ class CreateCompaniesTable extends Migration
             $table->string('name');
             $table->string('location');
             $table->text('description');
-            $table->string('email');
-            $table->string('web_site');
-            $table->string('support_phone_number');
+            $table->string('email')->nullable();
+            $table->string('web_site')->nullable();
+            $table->string('support_phone_number')->nullable();
             $table->integer('category_id');
             $table->string('image');
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

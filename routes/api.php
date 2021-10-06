@@ -26,4 +26,5 @@ Route::post('/reset-pass',[UserController::class,'resetPassword'])->middleware('
 
 Route::get('/get-companies',[CompanyController::class,'show']);
 Route::get('/get-company/{id}',[CompanyController::class,'index']);
+Route::post('/save-company',[CompanyController::class,'create'])->middleware('auth:api');
 
